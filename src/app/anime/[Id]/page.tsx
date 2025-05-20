@@ -25,6 +25,7 @@ import AnimePlayerEmbed from "./components/AnimePlayerEmbed";
 import AnimeRelations from "./components/AnimeRelations";
 import AnimeCharacters from "./components/AnimeCharacters";
 import AnimeRecommendations from "./components/AnimeRecommendations";
+import AddToWatchlistButton from "./components/AddToWatchlistButton";
 
 interface AnimePlayerData {
   titleForDebug: string;
@@ -322,7 +323,7 @@ export default async function AnimeDetailPage({
                   className="rounded-lg"
                 />
               </div>
-
+              <AddToWatchlistButton anime={anime} className="mt-4 w-full" />
               {anime.siteUrl && (
                 <Link
                   href={anime.siteUrl}
