@@ -1,3 +1,5 @@
+import { AnilistMedia } from "@/@types/types";
+
 export function formatCount(num: number | null | undefined): string {
   if (num === null || num === undefined || isNaN(num)) return "N/A";
   if (num >= 1000000) {
@@ -41,4 +43,22 @@ export function getFormattedAiringTime(
     minute: "2-digit",
     hour12: true,
   });
+}
+export function getUniqueAnimesByAnilistId(
+  animes: AnilistMedia[] | null | undefined,
+  _context?: string
+): AnilistMedia[] {
+  if (!animes || animes.length === 0) {
+    return [];
+  }
+  const seenIds = new Set<number>();
+  const uniqueAnimes: AnilistMedia[] = [];
+
+  for (const anime of animes) {
+    if (anime && typeof anime.id === "number" && !seenIds.has(anime.id)) {
+      seenIds.add(anime.id);
+      uniqueAnimes.push(anime);
+    }
+  }
+  return uniqueAnimes;
 }

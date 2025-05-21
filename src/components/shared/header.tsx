@@ -36,7 +36,7 @@ const navItems = [
     icon: <Tv size={18} />,
   },
   {
-    href: "/anime/search",
+    href: "/search",
     label: "Discover",
     icon: <Search size={18} />,
   },

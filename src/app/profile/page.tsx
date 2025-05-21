@@ -71,7 +71,7 @@ export default function ProfileOverviewPage() {
             <p className="text-sm text-text-muted-light dark:text-text-muted-dark p-3 border border-dashed border-border-light dark:border-border-dark rounded-md text-center">
               Your watchlist is empty.{" "}
               <LinkProfile
-                href="/anime/search"
+                href="/search"
                 className="text-brand-primary hover:underline"
               >
                 Start discovering anime!

@@ -149,14 +149,14 @@ export default async function HomePage() {
         title="Trending Now"
         icon={<TrendingUp className="text-accent-pink" />}
         animes={trendingAnimes}
-        viewMoreLink="/anime/search?sort=TRENDING_DESC"
+        viewMoreLink="/search?sort=TRENDING_DESC"
         emptyMessage="Trending anime couldn't be loaded. Check back soon!"
       />
       <AnimeSection
         title="Currently Airing"
         icon={<Zap className="text-accent-yellow" />}
         animes={currentSeasonAnimes}
-        viewMoreLink={`/anime/search?season=${currentSeasonInfo.season}&seasonYear=${currentSeasonInfo.year}`}
+        viewMoreLink={`/search?season=${currentSeasonInfo.season}&seasonYear=${currentSeasonInfo.year}`}
         emptyMessage="No currently airing shows found for this season."
       />
       <AnimeSection
