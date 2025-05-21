@@ -25,7 +25,7 @@ export default function Footer() {
             <ul className="space-y-2.5">
               <li>
                 <LinkFooter
-                  href="/anime/search"
+                  href="/anime/discover"  
                   className="transition-colors hover:text-primary hover:underline"
                 >
                   Discover Anime

@@ -48,18 +48,25 @@ const AddToWatchlistButton: React.FC<AddToWatchlistButtonProps> = ({
   return (
     <button
       onClick={handleToggleWatchlist}
-      className={`btn ${
-        onWatchlist ? "btn-secondary text-black" : "btn-primary"
-      } w-full flex items-center justify-center ${className}`}
+      className={`btn w-full flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md shadow-sm transition-colors duration-150 ease-in-out
+    focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-background-dark
+    ${
+      onWatchlist
+        ? "bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-700 dark:text-green-100 dark:hover:bg-green-600 border border-green-300 dark:border-green-600 focus:ring-green-500"
+        : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 focus:ring-blue-500"
+    }
+    ${className || ""}`}
       title={onWatchlist ? "Remove from Watchlist" : "Add to Watchlist"}
       disabled={!anime || typeof anime.id !== "number"}
     >
       {onWatchlist ? (
-        <CheckCircle size={18} className="mr-2" />
+        <CheckCircle size={18} className="mr-2 flex-shrink-0" />
       ) : (
-        <PlusCircle size={18} className="mr-2" />
+        <PlusCircle size={18} className="mr-2 flex-shrink-0" />
       )}
-      {onWatchlist ? "In Watchlist" : "Add to Watchlist"}
+      <span className="truncate">
+        {onWatchlist ? "In Watchlist" : "Add to Watchlist"}
+      </span>
     </button>
   );
 };

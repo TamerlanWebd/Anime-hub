@@ -1,4 +1,4 @@
-// src/store/userStore.ts
+// src/stores/userStore.ts
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
@@ -8,6 +8,8 @@ import {
   HistoryItem,
   WatchedEpisodeProgress,
   WatchlistItem,
+  UserAnimeStatus,
+  UserAnimeListEntry,
 } from "@/@types/types";
 import { toast } from "@/components/shared/Toaster";
 
@@ -16,6 +18,8 @@ export interface UserState {
   watchlist: WatchlistItem[];
   history: HistoryItem[];
   favoriteThreads: FavoriteThreadItem[];
+  animeList: UserAnimeListEntry[];
+
   setUsername: (username: string | null) => void;
   addToWatchlist: (anime: AnilistMedia) => void;
   removeFromWatchlist: (animeId: number) => void;
@@ -25,7 +29,8 @@ export interface UserState {
     episodeNumber: number,
     episodeTitle: string | undefined,
     progressSeconds: number,
-    durationSeconds: number
+    durationSeconds: number,
+    forceCoverSnapshot?: string
   ) => void;
   clearHistory: () => void;
   getAllHistory: () => HistoryItem[];
@@ -37,6 +42,11 @@ export interface UserState {
   removeFavoriteThread: (threadId: string) => void;
   isFavoriteThread: (threadId: string) => boolean;
   getFavoriteThreads: () => FavoriteThreadItem[];
+  getAnimeListStatus: (animeId: number) => UserAnimeStatus | null;
+  updateAnimeListStatus: (
+    status: UserAnimeStatus | null,
+    animeFullData: AnilistMedia
+  ) => void;
 }
 
 export const useUserStore = create<UserState>()(
@@ -46,8 +56,21 @@ export const useUserStore = create<UserState>()(
       watchlist: [],
       history: [],
       favoriteThreads: [],
+      animeList: [],
 
-      setUsername: (username) => set({ username }),
+      setUsername: (username) => {
+        if (!username) {
+          set({
+            username,
+            watchlist: [],
+            history: [],
+            favoriteThreads: [],
+            animeList: [],
+          });
+        } else {
+          set({ username });
+        }
+      },
       addToWatchlist: (anime) => {
         if (!get().username) {
           toast.info("Please login to add to watchlist.");
@@ -61,7 +84,9 @@ export const useUserStore = create<UserState>()(
             ],
           }));
           toast.success(
-            `Added "${anime.title?.userPreferred || "Anime"}" to watchlist.`
+            `Added "${
+              anime.title?.userPreferred || anime.title?.english || "Anime"
+            }" to watchlist.`
           );
         } else {
           get().removeFromWatchlist(anime.id);
@@ -79,19 +104,23 @@ export const useUserStore = create<UserState>()(
         if (animeToRemove) {
           toast.info(
             `Removed "${
-              animeToRemove.title?.userPreferred || "Anime"
+              animeToRemove.title?.userPreferred ||
+              animeToRemove.title?.english ||
+              "Anime"
             }" from watchlist.`
           );
         }
       },
       isInWatchlist: (animeId) =>
         get().watchlist.some((item) => item.anime.id === animeId),
+
       addOrUpdateHistory: (
         anime,
         episodeNumber,
         episodeTitle,
         progressSeconds,
-        durationSeconds
+        durationSeconds,
+        forceCoverSnapshot
       ) => {
         if (!get().username) return;
 
@@ -104,53 +133,49 @@ export const useUserStore = create<UserState>()(
           malId: anime.idMal,
           titleSnapshot: episodeTitle || `Episode ${episodeNumber}`,
           coverSnapshot:
-            anime.coverImage?.medium || anime.coverImage?.large || undefined,
+            forceCoverSnapshot ||
+            anime.coverImage?.medium ||
+            anime.coverImage?.large ||
+            undefined,
         };
 
-        const existingItemIndex = get().history.findIndex(
+        let currentHistory = [...get().history];
+        const existingItemIndex = currentHistory.findIndex(
           (item) =>
             item.anilistId === anime.id && item.episodeNumber === episodeNumber
         );
 
-        let newHistory: HistoryItem[];
+        const animeForHistory: Partial<AnilistMedia> = {
+          id: anime.id,
+          idMal: anime.idMal,
+          title: anime.title,
+          coverImage: anime.coverImage,
+          format: anime.format,
+          episodes: anime.episodes,
+        };
+
         if (existingItemIndex > -1) {
-          newHistory = [...get().history];
+          const itemToUpdate = currentHistory.splice(existingItemIndex, 1)[0];
           const updatedItem: HistoryItem = {
-            ...newHistory[existingItemIndex],
+            ...itemToUpdate,
             progress: progressData,
             lastWatched: now,
-
-            anime: {
-              id: anime.id,
-              idMal: anime.idMal,
-              title: anime.title,
-              coverImage: anime.coverImage,
-            },
+            anime: animeForHistory,
           };
-          newHistory[existingItemIndex] = updatedItem;
+          currentHistory.unshift(updatedItem);
         } else {
           const newItem: HistoryItem = {
             anilistId: anime.id,
             malId: anime.idMal,
-            anime: {
-              id: anime.id,
-              idMal: anime.idMal,
-              title: anime.title,
-              coverImage: anime.coverImage,
-            },
+            anime: animeForHistory,
             episodeNumber,
             episodeTitle,
             progress: progressData,
             lastWatched: now,
           };
-          newHistory = [newItem, ...get().history];
+          currentHistory.unshift(newItem);
         }
-        newHistory.sort(
-          (a, b) =>
-            new Date(b.lastWatched).getTime() -
-            new Date(a.lastWatched).getTime()
-        );
-        set({ history: newHistory.slice(0, 100) });
+        set({ history: currentHistory.slice(0, 100) });
       },
       clearHistory: () => {
         if (!get().username) return;
@@ -208,6 +233,129 @@ export const useUserStore = create<UserState>()(
             new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime()
         );
       },
+      getAnimeListStatus: (animeId) => {
+        if (!get().username) return null;
+        const entry = get().animeList.find((item) => item.animeId === animeId);
+        return entry ? entry.status : null;
+      },
+
+      updateAnimeListStatus: (status, animeFullData) => {
+        if (!get().username) {
+          toast.info("Пожалуйста, войдите в систему, чтобы изменить статус.");
+          return;
+        }
+        const animeId = animeFullData.id;
+        const now = new Date().toISOString();
+        let currentAnimeList = [...get().animeList];
+        const existingEntryIndex = currentAnimeList.findIndex(
+          (item) => item.animeId === animeId
+        );
+
+        const animeListDataForEntry: UserAnimeListEntry["anime"] = {
+          id: animeFullData.id,
+          idMal: animeFullData.idMal,
+          title: animeFullData.title,
+          coverImage: animeFullData.coverImage,
+          episodes: animeFullData.episodes,
+          format: animeFullData.format,
+        };
+
+        const animeTitleForToast =
+          animeFullData.title?.userPreferred ||
+          animeFullData.title?.english ||
+          animeFullData.title?.romaji ||
+          "Аниме";
+
+        if (status === null) {
+          if (existingEntryIndex > -1) {
+            currentAnimeList.splice(existingEntryIndex, 1);
+            set({ animeList: currentAnimeList });
+            toast.info(`"${animeTitleForToast}" удалено из ваших списков.`);
+          }
+          return;
+        }
+        if (existingEntryIndex > -1) {
+          const entryToUpdate = currentAnimeList.splice(
+            existingEntryIndex,
+            1
+          )[0];
+          const updatedEntry: UserAnimeListEntry = {
+            ...entryToUpdate,
+            status: status,
+            anime: animeListDataForEntry,
+            updatedAt: now,
+            score: status === "COMPLETED" ? entryToUpdate.score : undefined,
+            episodesWatched:
+              status === "WATCHING" ||
+              status === "COMPLETED" ||
+              status === "ON_HOLD"
+                ? entryToUpdate.episodesWatched
+                : undefined,
+          };
+          currentAnimeList.unshift(updatedEntry);
+        } else {
+          const newEntry: UserAnimeListEntry = {
+            animeId: animeId,
+            status: status,
+            anime: animeListDataForEntry,
+            addedAt: now,
+            updatedAt: now,
+            score: status === "COMPLETED" ? undefined : undefined,
+            episodesWatched:
+              status === "WATCHING" ||
+              status === "ON_HOLD" ||
+              status === "COMPLETED"
+                ? 0
+                : undefined,
+          };
+          currentAnimeList.unshift(newEntry);
+        }
+
+        set({ animeList: currentAnimeList });
+
+        const statusTranslations: Record<UserAnimeStatus, string> = {
+          WATCHING: "Смотрю",
+          PLANNING: "Планирую",
+          ON_HOLD: "Отложено",
+          COMPLETED: "Просмотрено",
+          DROPPED: "Брошено",
+        };
+        toast.success(
+          `Статус "${animeTitleForToast}" изменен на "${statusTranslations[status]}".`
+        );
+        if (status === "WATCHING") {
+          const historyItemExistsForThisAnime = get().history.some(
+            (item) => item.anilistId === animeId
+          );
+          if (!historyItemExistsForThisAnime) {
+            let initialEpisodeNumber = 1;
+            if (
+              animeFullData.format === "MOVIE" ||
+              animeFullData.episodes === 1
+            ) {
+              initialEpisodeNumber = 1;
+            } else if (animeFullData.episodes === 0) {
+              initialEpisodeNumber = 0;
+            }
+
+            get().addOrUpdateHistory(
+              animeFullData,
+              initialEpisodeNumber,
+              initialEpisodeNumber === 0
+                ? "Просмотр"
+                : `Эпизод ${initialEpisodeNumber}`,
+              0,
+              0,
+              animeFullData.coverImage?.medium ||
+                animeFullData.coverImage?.large ||
+                undefined
+            );
+            toast.info(
+              `"${animeTitleForToast}" добавлен в историю как "Начал смотреть".`
+            );
+          }
+        }
+      },
     }),
     {
       name: "user-profile-storage",
@@ -217,6 +365,7 @@ export const useUserStore = create<UserState>()(
         watchlist: state.watchlist,
         history: state.history,
         favoriteThreads: state.favoriteThreads,
+        animeList: state.animeList,
       }),
     }
   )

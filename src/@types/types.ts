@@ -308,3 +308,23 @@ export interface DiscussionState {
   threads: DiscussionThread[];
   postsByThreadId: Record<string, DiscussionPost[] | undefined>;
 }
+
+export type UserAnimeStatus =
+  | "WATCHING"
+  | "PLANNING"
+  | "ON_HOLD"
+  | "COMPLETED"
+  | "DROPPED";
+
+export interface UserAnimeListEntry {
+  animeId: number;
+  status: UserAnimeStatus;
+  anime: Pick<
+    AnilistMedia,
+    "id" | "idMal" | "title" | "coverImage" | "episodes" | "format"
+  >;
+  addedAt: string;
+  updatedAt: string;
+  score?: number;
+  episodesWatched?: number;
+}

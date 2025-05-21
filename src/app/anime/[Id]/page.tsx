@@ -1,4 +1,3 @@
-// src/app/anime/[Id]/page.tsx
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -25,6 +24,8 @@ import AnimePlayerEmbed from "./components/AnimePlayerEmbed";
 import AnimeRelations from "./components/AnimeRelations";
 import AnimeCharacters from "./components/AnimeCharacters";
 import AnimeRecommendations from "./components/AnimeRecommendations";
+import AnimeUserStatusManager from "./components/AnimeUserStatusManager";
+import { AnilistMedia } from "@/@types/types";
 import AddToWatchlistButton from "./components/AddToWatchlistButton";
 
 interface AnimePlayerData {
@@ -323,7 +324,14 @@ export default async function AnimeDetailPage({
                   className="rounded-lg"
                 />
               </div>
-              <AddToWatchlistButton anime={anime} className="mt-4 w-full" />
+              <AnimeUserStatusManager
+                anime={anime as AnilistMedia}
+                className="mt-4 w-full"
+              />
+              <AddToWatchlistButton
+                anime={anime as AnilistMedia}
+                className="mt-4 w-full"
+              ></AddToWatchlistButton>
               {anime.siteUrl && (
                 <Link
                   href={anime.siteUrl}
