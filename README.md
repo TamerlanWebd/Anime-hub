@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+AnimeHub
+AnimeHub is a web application designed for anime enthusiasts. It allows users to discover new anime, track their watchlists, engage with a community, and customize their experience with features like theme switching and account settings.
+Features
 
-## Getting Started
+Search and Filtering: Find anime with advanced filtering options.
+Watchlist and History: Add anime to your watchlist and view your viewing history.
+Community Section: Engage in discussions, view activity feeds, and start new topics.
+Account Settings: Change your name, select themes, and manage preferences.
+Responsive Design: Optimized for desktop and mobile devices.
 
-First, run the development server:
+Technologies Used
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Frontend: Next,TailwindCSS, Typescript
+(with React for components).
+Tools: Visual Studio Code, Git.
+AI Tools:
+ChatGPT: Used for generating ideas, planning project structure, and writing initial drafts of content (e.g., privacy policy, about page).
+GitHub Copilot: Integrated into Visual Studio Code for code autocompletion, bug fixing, and TypeScript type suggestions.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Installation and Setup
+Prerequisites
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Node.js (v16 or later)
+npm (comes with Node.js)
+Git
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Steps to Run Locally
 
-## Learn More
+Clone the repository:git clone https://github.com/TamerlanWebd/Anime-hub
 
-To learn more about Next.js, take a look at the following resources:
+Navigate to the project directory:cd animehub
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Install dependencies:npm install
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Start the development server:npm start
 
-## Deploy on Vercel
+Open your browser and visit http://localhost:3000.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Development Process
+All major development stages are tracked via Git commits. You can view the commit history in the repository to see the evolution of the project, including:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Initial setup and API integration.
+Creation of components (e.g., AnimeCard, Pagination).
+Implementation of community features, search, and account management.
+
+Deployment
+This project is ready to be deployed using GitHub Pages, Vercel, or Netlify for public access. Follow these steps to deploy:
+
+Build the project:npm run build
+
+Deploy to your preferred platform:
+GitHub Pages: Use the gh-pages branch or a GitHub Action.
+Vercel: Import the repository and deploy with one click.
+Netlify: Drag and drop the build folder or connect the repository.
+
+Share the deployed URL with your audience!
+
+Contributing
+Feel free to fork this repository, submit issues, or create pull requests. Contributions are welcome!
+License
+This project is licensed under the MIT License - see the LICENSE.md file for details.
+Contact
+For questions or support, reach out at zanshugurov07@gmail.com

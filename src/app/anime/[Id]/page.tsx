@@ -406,9 +406,7 @@ export default async function AnimeDetailPage({
                     {anime.genres?.map((genreName) => (
                       <Link
                         key={genreName}
-                        href={`/anime/search?genres=${encodeURIComponent(
-                          genreName
-                        )}`}
+                        href={`/search?genres=${encodeURIComponent(genreName)}`}
                         className="text-xs bg-gray-200 dark:bg-gray-700 text-text-secondary-light dark:text-text-secondary-dark px-2.5 py-1 rounded-full hover:bg-brand-primary hover:text-white dark:hover:bg-brand-primary transition-colors"
                       >
                         {genreName}
